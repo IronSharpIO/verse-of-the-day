@@ -9,27 +9,25 @@ import kotlinx.coroutines.launch
 
 class VerseViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val verseDao = VerseDatabase.getDatabase(application).verseDao()
+    private val repository: VerseRepository
 
-    val allVerses = verseDao.getAllVerses()
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
+    val allVerses: Flow<List<Verse>>
+
+    init {
+        val verseDao = AppDatabase.getDatabase(application).verseDao()
+        repository = VerseRepository(verseDao)
+        allVerses = repository.allVerses
+    }
 
     fun insertVerse(verse: Verse) {
-        viewModelScope.launch(Dispatchers.IO) {
-            verseDao.insertVerse(verse)
+        viewModelScope.launch {
+            repository.insert(verse)
         }
     }
 
-    fun markVerseRead(date: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val today = verseDao.getVerseByDate(date)
-            if (today != null && !today.read) {
-                verseDao.updateVerse(today.copy(read = true))
-            }
+    fun updateVerse(verse: Verse) {
+        viewModelScope.launch {
+            repository.update(verse)
         }
     }
 }

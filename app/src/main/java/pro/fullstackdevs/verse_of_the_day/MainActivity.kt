@@ -4,29 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import pro.fullstackdevs.verse_of_the_day.ui.theme.VerseofthedayTheme
-
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastCbrt
-import androidx.core.text.buildSpannedString
+import androidx.navigation.compose.rememberNavController
+import pro.fullstackdevs.verse_of_the_day.navigation.AppNavigation
 import pro.fullstackdevs.verse_of_the_day.ui.theme.VerseofthedayTheme
-
 
 class MainActivity : ComponentActivity() {
 
@@ -37,72 +29,105 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val today = "2025-06-25"
+        viewModel.insertVerse(
+            Verse(
+                reference = "Matthew 5:5",
+                text = "Blessed are the meek: for they shall inherit the earth.",
+                dateShown = today,
+                read = false
+            )
+        )
+
         setContent {
             VerseofthedayTheme {
-              Surface (
-                  modifier = Modifier.fillMaxSize(),
-                  color = MaterialTheme.colorScheme.background
-              ) {
-                  VerseListScreen(viewModel)
-              }
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    AppNavigation(navController = navController, viewModel = viewModel)
+                }
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-
-@Composable
-fun GreetingPreview() {
-    VerseofthedayTheme {
-        Greeting("Android")
-    }
-}
-
-
-
-@Composable
-fun VerseListScreen(viewModel: VerseViewModel) {
-    val verses by viewModel.allVerses.collectAsState(initial = emptyList())
-
-    LazyColumn (
+fun ProfileScreen(onBack: () -> Unit) {
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp)
-    ){
-        items(verses) { verse ->
-            VerseCard(verse)
+            .padding(16.dp)
+    ) {
+        Text(text = "\uD83D\uDC64 Profile", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = onBack) {
+            Text("Go Back")
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun VerseListScreen(
+    viewModel: VerseViewModel,
+    onProfileClick: () -> Unit
+) {
+    val verses by viewModel.allVerses.collectAsState(initial = emptyList())
+
+    Column {
+        TopAppBar(
+            title = { Text("Verse of the Day") },
+            actions = {
+                IconButton(onClick = onProfileClick) {
+                    Icon(Icons.Default.Person, contentDescription = "Profile")
+                }
+            }
+        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+        ) {
+            items(verses) { verse ->
+                VerseCard(verse = verse) {
+                    if (!verse.read) {
+                        val updatedVerse = verse.copy(read = true)
+                        viewModel.updateVerse(updatedVerse)
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
-fun VerseCard(verse: Verse) {
+fun VerseCard(verse: Verse, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation()
     ) {
-        Text(text = verse.text, style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = verse.reference, style = MaterialTheme.typography.bodySmall)
-        Text(text = "Read: ${verse.read}", style = MaterialTheme.typography.labelSmall)
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(text = verse.text, style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = verse.reference, style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = if (verse.read) "✅ Read" else "🕗 Not Read",
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun VerseListPreview() {
-    val sampleVerse = listOf(
+    val sampleVerses = listOf(
         Verse(
             id = 1,
             reference = "Matthew 5:5",
@@ -113,20 +138,20 @@ fun VerseListPreview() {
         Verse(
             id = 2,
             reference = "John 3:16",
-            text= "For God so loved the world...",
-            dateShown = "2025-6-24",
+            text = "For God so loved the world...",
+            dateShown = "2025-06-24",
             read = false
         )
     )
 
     VerseofthedayTheme {
-        LazyColumn (
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
-            items(sampleVerse) { verse ->
-                VerseCard(verse)
+            items(sampleVerses) { verse ->
+                VerseCard(verse = verse) { /* no-op for preview */ }
             }
         }
     }
