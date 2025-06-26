@@ -1,7 +1,5 @@
 package pro.fullstackdevs.verse_of_the_day
 
-package pro.fullstackdevs.verse_of_the_day
-
 import kotlinx.coroutines.flow.Flow
 
 class VerseRepository(private val verseDao: VerseDao) {
@@ -21,6 +19,5 @@ class VerseRepository(private val verseDao: VerseDao) {
     }
 
     suspend fun getTodayVerse(today: String): Verse? {
-        return verseDao.getByDate(today)
-    }
+        return verseDao.getVerseByDate(today)    }
 }

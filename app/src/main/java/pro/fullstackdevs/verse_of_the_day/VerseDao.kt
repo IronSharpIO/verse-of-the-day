@@ -7,18 +7,18 @@ import kotlinx.coroutines.flow.Flow
 interface VerseDao {
 
     @Query("SELECT * FROM verses ORDER BY dateShown DESC")
-    fun getAllVerses(): Flow<List<Verse>>
+    fun getAll(): Flow<List<Verse>>
 
     @Query("SELECT * FROM verses WHERE dateShown = :date LIMIT 1")
     suspend fun getVerseByDate(date: String): Verse?
 
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVerse(verse: Verse)
+    suspend fun insert(verse: Verse)
 
     @Update
-    suspend fun updateVerse(verse: Verse)
+    suspend fun update(verse: Verse)
 
     @Delete
-    suspend fun deleteVerse(verse: Verse)
-
+    suspend fun delete(verse: Verse)
 }
