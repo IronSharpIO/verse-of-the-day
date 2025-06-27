@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import pro.fullstackdevs.verse_of_the_day.VerseListScreen
-import pro.fullstackdevs.verse_of_the_day.ProfileScreen
-import pro.fullstackdevs.verse_of_the_day.VerseViewModel
+import pro.fullstackdevs.verse_of_the_day.ui.VerseListScreen
+import pro.fullstackdevs.verse_of_the_day.ui.ProfileScreen
+import pro.fullstackdevs.verse_of_the_day.viewmodel.VerseViewModel
 
 sealed class Screen(val route: String) {
     object VerseList : Screen("verse_list")

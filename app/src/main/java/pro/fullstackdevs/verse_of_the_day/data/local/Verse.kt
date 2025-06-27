@@ -1,4 +1,4 @@
-package pro.fullstackdevs.verse_of_the_day
+package pro.fullstackdevs.verse_of_the_day.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

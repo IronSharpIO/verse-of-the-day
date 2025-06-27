@@ -1,4 +1,4 @@
-package pro.fullstackdevs.verse_of_the_day
+package pro.fullstackdevs.verse_of_the_day.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,8 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import pro.fullstackdevs.verse_of_the_day.data.local.Verse
 import pro.fullstackdevs.verse_of_the_day.navigation.AppNavigation
 import pro.fullstackdevs.verse_of_the_day.ui.theme.VerseofthedayTheme
+import pro.fullstackdevs.verse_of_the_day.viewmodel.VerseViewModel
+import pro.fullstackdevs.verse_of_the_day.viewmodel.VerseViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -30,16 +33,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val today = "2025-06-25"
-        viewModel.insertVerse(
-            Verse(
-                reference = "Matthew 5:5",
-                text = "Blessed are the meek: for they shall inherit the earth.",
-                dateShown = today,
-                read = false
-            )
-        )
 
+        viewModel.fetchTodayVerseIfNeeded()
         setContent {
             VerseofthedayTheme {
                 Surface(
@@ -75,7 +70,7 @@ fun VerseListScreen(
     viewModel: VerseViewModel,
     onProfileClick: () -> Unit
 ) {
-    val verses by viewModel.allVerses.collectAsState(initial = emptyList())
+    val verses by viewModel.todayVerses.collectAsState()
 
     Column {
         TopAppBar(

@@ -1,4 +1,4 @@
-package pro.fullstackdevs.verse_of_the_day
+package pro.fullstackdevs.verse_of_the_day.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
